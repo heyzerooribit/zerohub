@@ -77,7 +77,12 @@
     var q=data.questions;
     $("question").textContent=q.length?q[day%q.length]:"No question posted yet.";
     if(data.challenge)$("challenge").textContent=data.challenge;
-    if(data.news&&data.news.length){$("news").innerHTML=data.news.map(function(n){return '<div class="upitem">'+esc(typeof n==="string"?n:n.title||"")+'</div>'}).join("")}
+    if(data.news&&data.news.length){$("news").innerHTML=data.news.map(function(n){
+      if(typeof n==="string")return '<div class="upitem">'+esc(n)+'</div>';
+      var dt=n.date?new Date(n.date+"T12:00:00").toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"}):"";
+      var ok=n.link&&n.link.indexOf("https://discord.com/")===0;
+      return '<div class="upitem"><div class="nt">'+esc(n.text||n.title||"")+'</div><span class="muted">'+esc(dt)+(ok?' · <a href="'+esc(n.link)+'" rel="noopener">View in Discord</a>':'')+'</span></div>';
+    }).join("")}
   }
   function go(){cal();upnext();inbox()}
   if($("prev")){
