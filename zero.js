@@ -93,7 +93,7 @@
       lset(a);$("evt").value="";$("evtime").value="";cal();upnext();
     };
   }
-  fetch("zero-data.json").then(function(r){return r.json()}).then(function(j){data=j;go()}).catch(go);
+  fetch("announcements.json").then(function(r){return r.json()}).then(function(j){data=j;go()}).catch(go);
 })();
 
 /* profile editor (saved in this browser only) */
