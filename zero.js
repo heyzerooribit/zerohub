@@ -71,3 +71,69 @@
   }
   fetch("zero-data.json").then(function(r){return r.json()}).then(function(j){data=j;go()}).catch(go);
 })();
+
+/* profile editor (saved in this browser only) */
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var btn=$("me");if(!btn||!window.HTMLDialogElement)return;
+  var KEY="zero-profile",DEF={name:"ZERØ",status:"",color:0,img:""};
+  var PAL=[["#ff6b5e","#7a0f18"],["#ff2a36","#5c0a10"],["#d9d2d0","#4a4444"],["#9a85ff","#2a1a66"],["#3a4468","#0b0e1a"]];
+  var NAMES=["Ember","Crimson","Ash","Violet","Night"];
+  function load(){try{return Object.assign({},DEF,JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){return Object.assign({},DEF)}}
+  function store(p){try{localStorage.setItem(KEY,JSON.stringify(p));return true}catch(e){return false}}
+  function initial(p){var n=(p.name||"").trim();return(!n||n==="ZERØ")?"Ø":Array.from(n)[0].toUpperCase()}
+  function paint(el,p){
+    if(p.img){el.style.background="url("+p.img+") center/cover";el.textContent=""}
+    else{var c=PAL[p.color]||PAL[0];el.style.background="radial-gradient(circle at 30% 25%,"+c[0]+","+c[1]+")";el.textContent=initial(p)}
+  }
+  function paintSide(p){
+    paint($("me-av"),p);
+    $("me-name").textContent=(p.name||"").trim()||"ZERØ";
+    $("me-sub").textContent=(p.status||"").trim()||"Edit profile";
+  }
+  var saved=load();paintSide(saved);
+
+  var dlg=document.createElement("dialog");dlg.setAttribute("aria-labelledby","ptitle");
+  dlg.innerHTML='<form id="pform"><h2 id="ptitle">Edit profile</h2>'+
+   '<div class="prev"><div class="av" id="pprev"></div><div class="btns"><button type="button" class="btn ghost" id="pup">Upload photo</button><button type="button" class="btn ghost" id="pnoimg">Remove photo</button></div><input type="file" id="pfile" accept="image/*" hidden></div>'+
+   '<label class="f">Display name<input type="text" id="pname" maxlength="24" autocomplete="off"></label>'+
+   '<label class="f">Status<input type="text" id="pstat" maxlength="60" autocomplete="off" placeholder="What are you becoming?"></label>'+
+   '<fieldset><legend>Avatar color</legend><div class="sw" id="psw"></div></fieldset>'+
+   '<p class="muted" style="margin:1rem 0 0">Saved in this browser only.</p>'+
+   '<div class="btns"><button type="submit" class="btn main">Save</button><button type="button" class="btn ghost" id="pcancel">Cancel</button><button type="button" class="btn ghost" id="preset">Reset</button></div></form>';
+  document.body.appendChild(dlg);
+  var draft;
+  function swatches(){
+    $("psw").innerHTML=PAL.map(function(c,i){return '<label title="'+NAMES[i]+'"><input type="radio" name="pc" value="'+i+'"'+(draft.color===i?" checked":"")+' aria-label="'+NAMES[i]+'"><span style="background:radial-gradient(circle at 30% 25%,'+c[0]+','+c[1]+')"></span></label>'}).join("");
+    Array.prototype.forEach.call(dlg.querySelectorAll("input[name=pc]"),function(r){r.onchange=function(){draft.color=+r.value;draft.img="";prev()}});
+  }
+  function prev(){paint($("pprev"),draft)}
+  function fill(){$("pname").value=draft.name;$("pstat").value=draft.status;swatches();prev()}
+  btn.onclick=function(){draft=Object.assign({},load());fill();dlg.showModal();$("pname").focus()};
+  $("pname").oninput=function(){draft.name=this.value;prev()};
+  $("pstat").oninput=function(){draft.status=this.value};
+  $("pup").onclick=function(){$("pfile").click()};
+  $("pnoimg").onclick=function(){draft.img="";prev()};
+  $("pfile").onchange=function(){
+    var f=this.files&&this.files[0];if(!f)return;
+    var r=new FileReader();
+    r.onload=function(){
+      var im=new Image();
+      im.onload=function(){
+        var s=Math.min(im.width,im.height),cv=document.createElement("canvas");cv.width=cv.height=128;
+        cv.getContext("2d").drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,128,128);
+        draft.img=cv.toDataURL("image/jpeg",.85);prev();
+      };
+      im.src=r.result;
+    };
+    r.readAsDataURL(f);this.value="";
+  };
+  $("pcancel").onclick=function(){dlg.close()};
+  $("preset").onclick=function(){draft=Object.assign({},DEF);fill()};
+  $("pform").onsubmit=function(e){
+    e.preventDefault();
+    if(!(draft.name||"").trim())draft.name="ZERØ";
+    store(draft);paintSide(load());dlg.close();
+  };
+  dlg.addEventListener("click",function(e){if(e.target===dlg)dlg.close()});
+})();
