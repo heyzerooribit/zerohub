@@ -161,3 +161,28 @@
   };
   ov.addEventListener("click",function(e){if(e.target===ov)shut()});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!ov.hidden)shut()});
 })();
+
+/* live Discord count (bots included, as Discord counts them) */
+(function(){
+  var num=document.getElementById("onnum");if(!num)return;
+  var code="jBfXVJUcVZ";
+  function get(u){return fetch(u).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
+  get("https://discord.com/api/v9/invites/"+code+"?with_counts=true").then(function(j){
+    if(typeof j.approximate_presence_count!=="number")throw new Error("no count");
+    num.textContent=j.approximate_presence_count;
+    if(typeof j.approximate_member_count==="number")document.getElementById("ontot").textContent="of "+j.approximate_member_count+" members";
+    var gid=j.guild&&j.guild.id;if(!gid)return;
+    return get("https://discord.com/api/guilds/"+gid+"/widget.json").then(function(w){
+      var box=document.getElementById("who");if(!w||!w.members)return;
+      w.members.slice(0,16).forEach(function(m){
+        var s=document.createElement("span"),i=document.createElement("img");
+        i.src=m.avatar_url;i.alt="";i.width=22;i.height=22;s.appendChild(i);
+        s.appendChild(document.createTextNode(m.username));
+        if(m.bot){var t=document.createElement("em");t.className="tagbot";t.textContent="BOT";s.appendChild(t)}
+        box.appendChild(s);
+      });
+    }).catch(function(){});
+  }).catch(function(){
+    num.textContent="Join";document.getElementById("onnum").nextSibling.textContent=" the server to see who’s around";
+  });
+})();
