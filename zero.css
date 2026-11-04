@@ -117,24 +117,25 @@ footer{margin-top:2rem;color:var(--muted);font-size:.9rem;text-align:center}
 .me b,.me small{display:block;line-height:1.25}
 .me small{color:var(--muted);font-size:.8rem}
 .me i{flex:none;overflow:hidden;background-size:cover;background-position:center}
-dialog{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:22px;padding:1.5rem;width:min(92vw,440px)}
-dialog::backdrop{background:rgba(0,0,0,.72)}
-dialog h2{font-size:1.6rem;margin:0 0 1rem}
-dialog label.f{display:block;margin-top:1rem;font-size:.9rem;color:var(--muted)}
-dialog input[type=text]{display:block;width:100%;margin-top:.35rem;padding:.7rem .9rem;border-radius:12px;border:1px solid var(--line);background:#0a0506;color:var(--ink);font:inherit}
-dialog input[type=text]:focus{outline:2px solid var(--red);outline-offset:1px}
-dialog fieldset{border:0;padding:0;margin:1rem 0 0}
-dialog legend{padding:0;font-size:.9rem;color:var(--muted)}
+.pdlg{max-height:90vh;overflow:auto;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:22px;padding:1.5rem;width:min(92vw,440px)}
+#povl{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.72);display:grid;place-items:center;padding:1rem}
+#povl[hidden]{display:none}
+.pdlg h2{font-size:1.6rem;margin:0 0 1rem}
+.pdlg label.f{display:block;margin-top:1rem;font-size:.9rem;color:var(--muted)}
+.pdlg input[type=text]{display:block;width:100%;margin-top:.35rem;padding:.7rem .9rem;border-radius:12px;border:1px solid var(--line);background:#0a0506;color:var(--ink);font:inherit}
+.pdlg input[type=text]:focus{outline:2px solid var(--red);outline-offset:1px}
+.pdlg fieldset{border:0;padding:0;margin:1rem 0 0}
+.pdlg legend{padding:0;font-size:.9rem;color:var(--muted)}
 .prev{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
 .prev .av{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;font:800 2rem Fraunces,serif;background-size:cover;background-position:center;flex:none}
-.prev .btn,dialog .btns .btn{padding:.55rem 1.1rem;font-size:.95rem}
+.prev .btn,.pdlg .btns .btn{padding:.55rem 1.1rem;font-size:.95rem}
 .sw{display:flex;gap:.7rem;margin-top:.5rem}
 .sw label{position:relative;cursor:pointer}
 .sw input{position:absolute;opacity:0;inset:0;cursor:pointer}
 .sw span{display:block;width:34px;height:34px;border-radius:50%;border:2px solid transparent}
 .sw input:checked+span{border-color:var(--ink);box-shadow:0 0 0 2px var(--bg) inset}
 .sw input:focus-visible+span{outline:3px solid var(--red);outline-offset:2px}
-dialog .btns{margin-top:1.4rem}
+.pdlg .btns{margin-top:1.4rem}
 @media (max-width:760px){
   .me{width:auto;margin:0 0 0 auto;padding:.25rem;border:0;background:none;flex:none}
   .me div{display:none}

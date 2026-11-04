@@ -75,7 +75,7 @@
 /* profile editor (saved in this browser only) */
 (function(){
   var $=function(id){return document.getElementById(id)};
-  var btn=$("me");if(!btn||!window.HTMLDialogElement)return;
+  var btn=$("me");if(!btn)return;
   var KEY="zero-profile",DEF={name:"ZERØ",status:"",color:0,img:""};
   var PAL=[["#ff6b5e","#7a0f18"],["#ff2a36","#5c0a10"],["#d9d2d0","#4a4444"],["#9a85ff","#2a1a66"],["#3a4468","#0b0e1a"]];
   var NAMES=["Ember","Crimson","Ash","Violet","Night"];
@@ -93,7 +93,7 @@
   }
   var saved=load();paintSide(saved);
 
-  var dlg=document.createElement("dialog");dlg.setAttribute("aria-labelledby","ptitle");
+  var ov=document.createElement("div");ov.id="povl";ov.hidden=true;var dlg=document.createElement("div");dlg.className="pdlg";dlg.setAttribute("role","dialog");dlg.setAttribute("aria-modal","true");dlg.setAttribute("aria-labelledby","ptitle");function shut(){ov.hidden=true;btn.focus()}
   dlg.innerHTML='<form id="pform"><h2 id="ptitle">Edit profile</h2>'+
    '<div class="prev"><div class="av" id="pprev"></div><div class="btns"><button type="button" class="btn ghost" id="pup">Upload photo</button><button type="button" class="btn ghost" id="pnoimg">Remove photo</button></div><input type="file" id="pfile" accept="image/*" hidden></div>'+
    '<label class="f">Display name<input type="text" id="pname" maxlength="24" autocomplete="off"></label>'+
@@ -101,7 +101,7 @@
    '<fieldset><legend>Avatar color</legend><div class="sw" id="psw"></div></fieldset>'+
    '<p class="muted" style="margin:1rem 0 0">Saved in this browser only.</p>'+
    '<div class="btns"><button type="submit" class="btn main">Save</button><button type="button" class="btn ghost" id="pcancel">Cancel</button><button type="button" class="btn ghost" id="preset">Reset</button></div></form>';
-  document.body.appendChild(dlg);
+  ov.appendChild(dlg);document.body.appendChild(ov);
   var draft;
   function swatches(){
     $("psw").innerHTML=PAL.map(function(c,i){return '<label title="'+NAMES[i]+'"><input type="radio" name="pc" value="'+i+'"'+(draft.color===i?" checked":"")+' aria-label="'+NAMES[i]+'"><span style="background:radial-gradient(circle at 30% 25%,'+c[0]+','+c[1]+')"></span></label>'}).join("");
@@ -109,7 +109,7 @@
   }
   function prev(){paint($("pprev"),draft)}
   function fill(){$("pname").value=draft.name;$("pstat").value=draft.status;swatches();prev()}
-  btn.onclick=function(){draft=Object.assign({},load());fill();dlg.showModal();$("pname").focus()};
+  btn.onclick=function(){draft=Object.assign({},load());fill();ov.hidden=false;$("pname").focus()};
   $("pname").oninput=function(){draft.name=this.value;prev()};
   $("pstat").oninput=function(){draft.status=this.value};
   $("pup").onclick=function(){$("pfile").click()};
@@ -128,12 +128,12 @@
     };
     r.readAsDataURL(f);this.value="";
   };
-  $("pcancel").onclick=function(){dlg.close()};
+  $("pcancel").onclick=function(){shut()};
   $("preset").onclick=function(){draft=Object.assign({},DEF);fill()};
   $("pform").onsubmit=function(e){
     e.preventDefault();
     if(!(draft.name||"").trim())draft.name="ZERØ";
-    store(draft);paintSide(load());dlg.close();
+    store(draft);paintSide(load());shut();
   };
-  dlg.addEventListener("click",function(e){if(e.target===dlg)dlg.close()});
+  ov.addEventListener("click",function(e){if(e.target===ov)shut()});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!ov.hidden)shut()});
 })();
