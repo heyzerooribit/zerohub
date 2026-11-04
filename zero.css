@@ -92,7 +92,9 @@ td:first-child{font-weight:500}td:last-child{color:var(--muted)}
 .calhead h2{margin:0}.calhead .btn{padding:.5rem 1rem}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .cal .dow{color:var(--muted);font-size:.8rem;text-align:center;padding:.3rem 0}
-.cal .day{min-height:64px;border:1px solid var(--line);border-radius:12px;padding:.35rem .45rem;font-size:.85rem;color:var(--muted);overflow:hidden}
+.cal .day{min-height:64px;border:1px solid var(--line);border-radius:12px;padding:.35rem .45rem;font:inherit;font-size:.85rem;text-align:left;color:var(--muted);background:none;overflow:hidden;cursor:pointer}
+.cal .day:hover{border-color:#4a2a2f;background:rgba(255,255,255,.04)}
+.cal .day.sel{background:rgba(255,42,54,.16);box-shadow:inset 0 0 0 2px var(--red);color:var(--ink)}
 .cal .day.out{opacity:.35}
 .cal .day.now{border-color:var(--red);color:var(--ink)}
 .cal .ev{display:block;margin-top:.2rem;padding:.1rem .35rem;border-radius:6px;background:rgba(255,42,54,.25);color:var(--ink);font-size:.72rem;line-height:1.25}
@@ -140,3 +142,10 @@ footer{margin-top:2rem;color:var(--muted);font-size:.9rem;text-align:center}
   .me{width:auto;margin:0 0 0 auto;padding:.25rem;border:0;background:none;flex:none}
   .me div{display:none}
 }
+
+.addev{display:grid;gap:.6rem;margin-top:1rem}
+.addev input{width:100%;padding:.7rem .9rem;border-radius:12px;border:1px solid var(--line);background:#0a0506;color:var(--ink);font:inherit}
+.addev input:focus{outline:2px solid var(--red);outline-offset:1px}
+.addev .btn{padding:.6rem 1rem}
+.rm{margin-left:.5rem;padding:.1rem .6rem;border:1px solid var(--line);border-radius:999px;background:none;color:var(--muted);font:inherit;font-size:.8rem;cursor:pointer}
+.rm:hover{color:var(--ink);border-color:var(--red)}

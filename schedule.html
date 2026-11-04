@@ -29,7 +29,11 @@
       <div class="calhead"><h2 id="calt">Calendar</h2><div class="btns"><button class="btn ghost" id="prev" aria-label="Previous month">‹</button><button class="btn ghost" id="today-btn">Today</button><button class="btn ghost" id="next" aria-label="Next month">›</button></div></div>
       <div class="cal" id="cal"></div>
     </div>
-    <div class="side"><div class="card"><h3>Up next</h3><div class="empty" id="upnext">Nothing scheduled yet.</div></div></div>
+    <div class="side">
+      <div class="card"><h3 id="daytitle">Selected day</h3><div class="empty" id="daylist">Nothing on this day.</div>
+        <form id="addev" class="addev"><input type="text" id="evt" maxlength="60" placeholder="Add an event" aria-label="Event title"><input type="text" id="evtime" maxlength="20" placeholder="Time (optional)" aria-label="Time"><button class="btn main" type="submit">Add to this day</button></form>
+        <p class="muted" style="margin:.8rem 0 0">Events added here are saved in this browser only. To show them to everyone, add them to zero-data.json.</p></div>
+      <div class="card"><h3>Up next</h3><div class="empty" id="upnext">Nothing scheduled yet.</div></div></div>
   </div>
   <footer>ZERØ. A beginning, not an absence.</footer>
 </main>
