@@ -35,7 +35,9 @@ def message_text(m):
 def main():
     guild = get("/channels/" + CHANNEL).get("guild_id", "")
     news = []
-    for m in get("/channels/%s/messages?limit=%d" % (CHANNEL, LIMIT)):
+    msgs = get("/channels/%s/messages?limit=%d" % (CHANNEL, LIMIT))
+    print("Fetched %d messages from channel %s" % (len(msgs), CHANNEL))
+    for m in msgs:
         text = message_text(m)
         if not text:
             continue
@@ -48,6 +50,11 @@ def main():
             data = json.load(f)
     except (OSError, ValueError):
         data = {"events": [], "questions": [], "challenge": ""}
+    print("%d of them had readable text" % len(news))
+    if msgs and not news:
+        print("Messages were found but their text is empty. Turn on Message Content Intent in the Discord developer portal (Bot page), save, and run again.")
+    if not msgs:
+        print("The channel returned no messages. Check DISCORD_CHANNEL_ID points at the announcement channel and that it has messages.")
     data["news"] = news
     with open(FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
