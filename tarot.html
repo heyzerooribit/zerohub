@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="description" content="ZERØ isn’t about erasing yourself. It’s about allowing yourself to evolve.">
+<title>Daily card · ZERØ</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=DM+Sans:wght@400;500;700&family=Libre+Baskerville:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="zero.css">
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<aside>
+  <a class="brand" href="index.html"><b class="wm">Ø ZERØ</b></a>
+  <nav aria-label="Main"><ul><li><a href="index.html"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Home</a></li><li><a href="about.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>About</a></li><li><a href="community.html"><svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 10-8 0M4 21a8 8 0 0116 0"/></svg>Community</a></li><li><a href="merch.html"><svg viewBox="0 0 24 24"><path d="M6 8h12l1 12H5zM9 8a3 3 0 016 0"/></svg>Merch</a></li><li><a href="schedule.html"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Schedule</a></li><li><a href="inbox.html"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Inbox</a></li><li><a href="tarot.html" aria-current="page"><svg viewBox="0 0 24 24"><path d="M12 3l2.4 5 5.6.8-4 3.9.9 5.6L12 15.6 7.1 18.3l.9-5.6-4-3.9 5.6-.8z"/></svg>Daily card</a></li></ul></nav>
+  <button class="me" id="me" type="button" aria-haspopup="dialog" aria-label="Edit profile"><i id="me-av">Ø</i><div><b id="me-name">ZERØ</b><small id="me-sub">Edit profile</small></div></button>
+</aside>
+<main>
+  <div class="top"><span class="pill">From darkness, rebirth</span></div>
+  <div class="card tarot">
+    <h2>Daily card</h2>
+    <p class="intro">Draw one card from the full 78-card deck. You get one a day, so take a breath before you choose.</p>
+    <div class="tstage">
+      <div class="tcard" id="tcard"><div class="tin">
+        <div class="tface back" aria-hidden="true"><i class="tring"></i></div>
+        <div class="tface front" id="tfront"></div>
+      </div></div>
+      <div>
+        <button class="btn main" id="tdraw" type="button">Draw today’s card</button>
+        <div class="tinfo" id="tinfo" aria-live="polite" hidden>
+          <h3 id="tname"></h3>
+          <p class="tkw" id="tkw"></p>
+          <p class="remind" id="tmean"></p>
+          <details><summary>The other way up</summary><p id="tother" class="muted"></p></details>
+          <p class="muted">Come back tomorrow for a new card.</p>
+        </div>
+      </div>
+    </div>
+    <div id="thist"></div>
+  </div>
+  <footer>ZERØ. A beginning, not an absence.</footer>
+</main>
+<script src="zero.js"></script>
+<script src="tarot.js"></script>
+</body>
+</html>
