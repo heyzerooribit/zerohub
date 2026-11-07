@@ -72,10 +72,43 @@
     }});
     dayview();
   }
+  /* daily question generator: 500+ distinct questions, same one for everyone each day */
+  var QPOOL=null;
+  function buildPool(){
+    var out=[],A=["begin","release","rebuild","forgive","try","say out loud","let go of","choose","protect","welcome","question","create","stop carrying","ask for","celebrate","start over with"],
+    AC=["nobody was watching","you weren’t afraid of being wrong","you had a clean slate","you trusted the process","nobody needed you to explain","you had one more year","failure wasn’t possible","you already believed you were enough","you were braver than you feel","the old rules didn’t apply","you had the whole night to think","you knew it would work out","no one was keeping score","you weren’t worried about being judged","you could change your mind later","today was day one"],
+    BN=["belief","habit","fear","rule","chapter","label","routine","expectation","version of you","story","promise","plan"],
+    BP=["deserves a thank-you","is ready to rest","no longer fits","still has something to teach you","is holding you back","has been quietly changing","is worth keeping","is ready to be rewritten"],
+    CT=["today","this week","before the month ends","before the next full moon","tomorrow morning","by this weekend"],
+    CG=["welcome a new beginning","make room for something new","honor who you were","feel more like yourself","let the dawn in","rest without guilt","move toward what’s calling you","let go of something heavy","be kinder to yourself","try something unfamiliar","say yes to yourself","finish something you started","begin something you’ve been avoiding","feel proud of how far you’ve come"],
+    EA=["surprise yourself","change your mind","do something for the first time","forgive yourself","feel completely like yourself","let someone see the real you","rest without guilt","start over","say no and mean it","laugh until it hurt","feel proud of yourself","ask for help","let go of something","feel truly free"],
+    ET=["what did it teach you","what changed afterward","what did you need in that moment","how did it feel"],
+    FS=["I’m ready to stop …","Something I’m still becoming is …","The version of me I’m leaving behind is …","I feel most like myself when …","The dawn I’m waiting for looks like …","One thing I’d tell my past self is …","I’m learning to let go of …","What I’m protecting right now is …","I used to believe …, but now …","The bravest thing I did this year was …","I’m grateful that I outgrew …","The next chapter feels like …","I keep coming back to …","What I need more of is …","What I need less of is …","I’m proud that I …","Tonight, I’m releasing …","In the quiet, I hear …","If I started from zero today, I would …","The part of me that’s still rising is …"],
+    D=["Khaos asks: what are you ready to release?","Khaos asks: what could you begin if nothing was holding you?","Khaos asks: what ending are you avoiding?","Khaos asks: what would you do with infinite possibility?","Khaos asks: where could you use a little more empty space?","Khaos asks: what no longer serves you?","Khaos asks: what are you holding onto too tightly?","Khaos asks: what would happen if you let it all fall away?",
+    "Nyx asks: what truth do you find in the quiet?","Nyx asks: what are you afraid to look at?","Nyx asks: what has your dream been trying to tell you?","Nyx asks: what do you know that you haven’t said out loud?","Nyx asks: what do you need to understand about yourself?","Nyx asks: what is waiting for you in the dark?","Nyx asks: when did you last sit with the unknown?","Nyx asks: what do the stars remind you of?",
+    "Eos asks: what is beginning for you?","Eos asks: what are you hopeful about?","Eos asks: what light came after your last dark season?","Eos asks: what would a fresh start look like?","Eos asks: what are you ready to welcome?","Eos asks: what is one thing that feels possible today?","Eos asks: where is the courage to change?","Eos asks: what small sunrise happened this week?",
+    "Bennu asks: what are you ready to rise from?","Bennu asks: what have you rebuilt that you’re proud of?","Bennu asks: what did you survive that made you stronger?","Bennu asks: what are you becoming?","Bennu asks: what needs to burn so something new can grow?","Bennu asks: when did you last begin again?","Bennu asks: what would resilience look like today?","Bennu asks: what are you transforming?"];
+    A.forEach(function(v){AC.forEach(function(c){out.push("What would you "+v+" if "+c+"?")})});
+    BN.forEach(function(n){BP.forEach(function(p){out.push("Which "+n+" "+p+"?")})});
+    CT.forEach(function(t){CG.forEach(function(g){out.push("What is one small thing you can do "+t+" to "+g+"?")})});
+    EA.forEach(function(a){ET.forEach(function(t){out.push("When did you last "+a+", and "+t+"?")})});
+    FS.forEach(function(s){out.push("Finish this sentence: "+s)});
+    D.forEach(function(q){out.push(q)});
+    var seed=20260101;                        /* fixed seed = same order for everyone */
+    function rnd(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}
+    for(var i=out.length-1;i>0;i--){var j=Math.floor(rnd()*(i+1)),k=out[i];out[i]=out[j];out[j]=k}
+    return out;
+  }
+  function dailyQuestion(curated){
+    if(!QPOOL)QPOOL=buildPool();
+    var n=Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(2026,0,1))/864e5);
+    if(n<0)n=0;
+    if(curated&&curated.length&&n%4===0)return curated[(n/4)%curated.length];   /* every 4th day is hand-picked */
+    return QPOOL[n%QPOOL.length];
+  }
   function inbox(){
     if(!$("question"))return;
-    var q=data.questions;
-    $("question").textContent=q.length?q[day%q.length]:"No question posted yet.";
+    $("question").textContent=dailyQuestion(data.questions||[]);
     if(data.challenge)$("challenge").textContent=data.challenge;
     if(data.news&&data.news.length){$("news").innerHTML=data.news.map(function(n){
       if(typeof n==="string")return '<div class="upitem">'+esc(n)+'</div>';
