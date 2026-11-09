@@ -157,3 +157,24 @@ footer{margin-top:2rem;color:var(--muted);font-size:.9rem;text-align:center}
 .tagbot{font-style:normal;font-size:.65rem;font-weight:700;background:var(--red);color:#fff;border-radius:4px;padding:0 .3rem}
 .nt{white-space:pre-wrap;color:var(--ink);margin-bottom:.2rem}
 #news .upitem a{color:var(--red)}
+
+.tstage{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:2rem;align-items:center;margin:1.5rem 0}
+.tcard{perspective:1000px;width:100%;max-width:260px;aspect-ratio:2/3.2}
+.tin{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.2,.7,.2,1)}
+.tcard.flip .tin{transform:rotateY(180deg)}
+.tface{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:18px;border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;text-align:center;padding:1rem}
+.tface.back{background:radial-gradient(circle at 50% 30%,rgba(255,42,54,.22),transparent 60%),#0b0506;border-color:rgba(255,42,54,.5)}
+.tring{display:block;position:relative;width:34%;aspect-ratio:3/4;border:9px solid var(--red);border-radius:50%}
+.tring::after{content:"";position:absolute;left:50%;top:-14%;height:128%;width:6px;background:var(--ink);border-radius:3px;transform:translateX(-50%) rotate(35deg)}
+.tface.front{transform:rotateY(180deg);background:linear-gradient(180deg,#1a0a0d,#0b0506);border-color:var(--red)}
+.tface.front.rev{transform:rotateY(180deg) rotate(180deg)}
+.tnum{font:600 1rem "DM Sans",sans-serif;color:var(--red);letter-spacing:.25em}
+.trank{font:800 clamp(1.8rem,5vw,2.5rem)/1.05 Fraunces,serif}
+.tsuit{color:var(--muted);letter-spacing:.2em;text-transform:uppercase;font-size:.8rem}
+.tinfo{margin-top:1.2rem}
+.tinfo h3{font:800 clamp(1.6rem,4vw,2.2rem)/1.1 Fraunces,serif;margin:0}
+.tkw{color:var(--red);margin:.2rem 0 .8rem}
+.tinfo summary{cursor:pointer;color:var(--muted)}
+.tarot #thist h3{font:800 1.2rem Fraunces,serif;margin:1.8rem 0 0}
+@media (max-width:760px){.tstage{grid-template-columns:1fr;justify-items:center;text-align:center}}
+@media (prefers-reduced-motion:reduce){.tin{transition:none}}

@@ -19,7 +19,7 @@
 <canvas id="stars" aria-hidden="true"></canvas>
 <aside>
   <a class="brand" href="index.html"><b class="wm">Ø ZERØ</b></a>
-  <nav aria-label="Main"><ul><li><a href="index.html" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Home</a></li><li><a href="about.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>About</a></li><li><a href="community.html"><svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 10-8 0M4 21a8 8 0 0116 0"/></svg>Community</a></li><li><a href="merch.html"><svg viewBox="0 0 24 24"><path d="M6 8h12l1 12H5zM9 8a3 3 0 016 0"/></svg>Merch</a></li><li><a href="schedule.html"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Schedule</a></li><li><a href="inbox.html"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Inbox</a></li></ul></nav>
+  <nav aria-label="Main"><ul><li><a href="index.html" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Home</a></li><li><a href="about.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>About</a></li><li><a href="community.html"><svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 10-8 0M4 21a8 8 0 0116 0"/></svg>Community</a></li><li><a href="merch.html"><svg viewBox="0 0 24 24"><path d="M6 8h12l1 12H5zM9 8a3 3 0 016 0"/></svg>Merch</a></li><li><a href="schedule.html"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Schedule</a></li><li><a href="inbox.html"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Inbox</a></li><li><a href="tarot.html"><svg viewBox="0 0 24 24"><path d="M12 3l2.4 5 5.6.8-4 3.9.9 5.6L12 15.6 7.1 18.3l.9-5.6-4-3.9 5.6-.8z"/></svg>Daily card</a></li></ul></nav>
   <button class="me" id="me" type="button" aria-haspopup="dialog" aria-label="Edit profile"><i id="me-av">Ø</i><div><b id="me-name">ZERØ</b><small id="me-sub">Edit profile</small></div></button>
 </aside>
 <main>
@@ -42,11 +42,13 @@
     </div>
     <div class="side">
       <div class="card"><h3>Today’s reminder</h3><p class="remind" id="remind"></p><span class="muted" id="today"></span></div>
+      <div class="card" id="hometarot"><h3>Daily card</h3><p class="remind" id="htname" hidden></p><p class="muted" id="htmsg" style="margin:0 0 1rem">Draw one card from the 78-card deck, once a day.</p><a class="btn main" id="htbtn" href="tarot.html">Draw today’s card</a></div>
       <div class="card"><h3>Up next</h3><div class="empty" id="upnext">Nothing scheduled yet.</div><p class="muted" style="margin:.8rem 0 0"><a href="schedule.html">Open the calendar</a></p></div>
     </div>
   </div>
   <footer>ZERØ. A beginning, not an absence.</footer>
 </main>
 <script src="zero.js"></script>
+<script src="tarot.js"></script>
 </body>
 </html>

@@ -1,7 +1,6 @@
 /* Daily tarot card: one pull per visitor per day, saved in this browser */
 (function(){
   var $=function(id){return document.getElementById(id)};
-  if(!$("tdraw"))return;
   var MAJ=[
    ["The Fool","beginnings · trust · a leap","A fresh start. Step forward with open hands and trust the unknown.","Hesitation or recklessness. Look before you leap, but don’t let fear keep you still."],
    ["The Magician","willpower · skill · action","You have what you need. Focus your intention and make it real.","Scattered energy or untapped talent. Check whether you’re using your gifts honestly."],
@@ -122,7 +121,10 @@
       return '<span class="chip">'+dt+" · "+DECK[x.id].name+(x.rev?" (reversed)":"")+'</span>';
     }).join("")+'</div>';
   }
-  var v=load(),t=today(),mine=v.log.filter(function(x){return x.date===t&&DECK[x.id]})[0];
+  var t=today();
+  function mineToday(s){return s.log.filter(function(x){return x.date===t&&DECK[x.id]})[0]}
+  if($("tdraw")){
+  var v=load(),mine=v.log.filter(function(x){return x.date===t&&DECK[x.id]})[0];
   if(mine)show(mine);
   history(v);
   $("tdraw").onclick=function(){
@@ -131,5 +133,17 @@
     if(!e){e={date:t,id:rnd(DECK.length),rev:rnd(2)===1};s.log.push(e);s.log=s.log.slice(-30);save(s)}
     show(e);history(s);
   };
+  }
+  /* home page teaser */
+  if($("hometarot")){
+    var hm=mineToday(load());
+    if(hm){
+      var hc=DECK[hm.id];
+      $("htname").textContent=hc.name+(hm.rev?" (reversed)":"");
+      $("htname").hidden=false;
+      $("htmsg").textContent=hm.rev?hc.rev:hc.up;
+      $("htbtn").textContent="See your card";
+    }
+  }
   window.__zeroDeck=DECK.length;
 })();
