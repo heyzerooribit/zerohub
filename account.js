@@ -16,10 +16,26 @@
   if (sub) new MutationObserver(label).observe(sub, { childList: true, characterData: true, subtree: true });
 
   const st = document.createElement("style");
-  st.textContent = ".acct-pop{position:fixed;z-index:9999;display:flex;flex-direction:column;padding:6px;background:#151515;border:1px solid #2a2a2a;border-radius:16px}.acct-pop button{background:none;border:0;color:#ededed;text-align:left;padding:11px 12px;border-radius:10px;font:inherit;cursor:pointer}.acct-pop button:hover{background:#222}.acct-pop button:focus-visible{outline:2px solid #e11d2e}";
+  st.textContent = ".acct-pop{position:fixed;z-index:9999;display:flex;flex-direction:column;padding:6px;background:#151515;border:1px solid #2a2a2a;border-radius:16px}.acct-pop button{background:none;border:0;color:#ededed;text-align:left;padding:11px 12px;border-radius:10px;font:inherit;cursor:pointer}.acct-pop button:hover{background:#222}.acct-pop button:focus-visible{outline:2px solid #e11d2e}.adm-fab{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:9997;padding:12px 18px;border:0;border-radius:999px;background:#e11d2e;color:#fff;font:inherit;font-weight:700;cursor:pointer;box-shadow:0 6px 24px rgba(225,29,46,.35)}.adm-drawer{position:fixed;top:0;right:0;bottom:0;width:min(480px,100vw);z-index:9998;display:flex;flex-direction:column;background:#000;border-left:1px solid #2a2a2a;transform:translateX(100%);transition:transform .25s}.adm-drawer.open{transform:none}.adm-drawer header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #2a2a2a;color:#ededed;font-weight:700}.adm-drawer header button{background:none;border:1px solid #2a2a2a;color:#ededed;border-radius:10px;padding:6px 12px;font:inherit;cursor:pointer}.adm-drawer iframe{flex:1;border:0;width:100%;background:#000}@media (prefers-reduced-motion:reduce){.adm-drawer{transition:none}}";
   document.head.appendChild(st);
 
-  let pop = null, bypass = false;
+  let pop = null, bypass = false, drawer = null, fab = null;
+  function toggleTools(open) {
+    if (!drawer) return;
+    if (open && !drawer.querySelector("iframe")) {
+      const f = document.createElement("iframe"); f.src = "admin.html"; f.title = "Admin tools"; drawer.appendChild(f);
+    }
+    drawer.classList.toggle("open", open);
+    fab.hidden = open;
+  }
+  if (admin) {
+    drawer = document.createElement("aside"); drawer.className = "adm-drawer"; drawer.setAttribute("aria-label", "Admin tools");
+    drawer.innerHTML = "<header><span>Admin tools</span><button type=\"button\">Close</button></header>";
+    drawer.querySelector("button").onclick = () => toggleTools(false);
+    fab = document.createElement("button"); fab.type = "button"; fab.className = "adm-fab"; fab.textContent = "Admin tools";
+    fab.onclick = () => toggleTools(true);
+    document.body.append(drawer, fab);
+  }
   const close = () => { if (pop) { pop.remove(); pop = null; } };
   const item = (text, fn) => {
     const b = document.createElement("button");
@@ -43,7 +59,7 @@
       pop.append(item("Edit profile", () => { bypass = true; btn.click(); }));
       if (admin) {
         pop.append(
-          item("Admin page", () => { location.href = "admin.html"; }),
+          item("Admin tools", () => toggleTools(true)),
           item("Sign out", async () => { await sb.auth.signOut(); location.reload(); })
         );
       } else {
@@ -54,5 +70,5 @@
     } else if (pop && !pop.contains(e.target)) close();
   }, true);
 
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") { close(); toggleTools(false); } });
 })();

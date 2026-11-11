@@ -41,7 +41,7 @@
 <script>
 const msg = document.getElementById("msg");
 const HOME = "index.html";   // where guests land
-const ADMIN = "admin.html";  // where the admin lands
+const ADMIN = "index.html";  // admin lands on the full site (admin tools open from the site)
 
 async function route(user) {
   location.href = (await isAdmin(user)) ? ADMIN : HOME;
