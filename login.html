@@ -18,6 +18,8 @@
   .primary { background:var(--red); color:#fff; }
   .ghost { background:transparent; color:var(--text); border:1px solid var(--line); margin-top:10px; }
   .or { text-align:center; color:var(--muted); margin:18px 0 0; font-size:.85rem; }
+  .who { margin:0 0 6px; padding:12px; border:1px solid var(--line); border-radius:14px; }
+  .who p { margin:0 0 4px; font-size:.9rem; color:var(--muted); word-break:break-all; }
   #msg { min-height:1.3em; margin:14px 0 0; color:#ff6b75; font-size:.9rem; }
 </style>
 </head>
@@ -25,6 +27,7 @@
 <main class="card">
   <h1>ZERØ</h1>
   <p>Sign in as admin, or keep browsing as a guest.</p>
+  <div id="who" class="who" hidden><p></p><button class="ghost go" type="button">Go to the site</button><button class="ghost reset" type="button">Sign out and start over</button></div>
   <form id="f">
     <label for="email">Admin email</label>
     <input id="email" type="email" autocomplete="username" required>
@@ -42,35 +45,53 @@
 const msg = document.getElementById("msg");
 const HOME = "index.html";   // where guests land
 const ADMIN = "index.html";  // admin lands on the full site (admin tools open from the site)
+const say = (t) => { msg.textContent = t; };
+const ready = typeof sb !== "undefined" && typeof isAdmin === "function";
 
-async function route(user) {
-  location.href = (await isAdmin(user)) ? ADMIN : HOME;
-}
-
-// Skip the form only for a signed-in admin. A guest session must still be able to sign in.
-sb.auth.getSession().then(async ({ data }) => {
-  const u = data.session && data.session.user;
-  if (u && !u.is_anonymous && (await isAdmin(u))) location.href = ADMIN;
-});
-
+// Listeners are attached first, so the page never reloads itself if something else fails to load.
 document.getElementById("f").addEventListener("submit", async (e) => {
   e.preventDefault();
-  msg.textContent = "";
-  const { data, error } = await sb.auth.signInWithPassword({
-    email: document.getElementById("email").value.trim(),
-    password: document.getElementById("pw").value
-  });
-  if (error) { msg.textContent = "Sign-in failed: check your email and password."; return; }
-  if (!(await isAdmin(data.user))) { msg.textContent = "This account isn't an admin."; await sb.auth.signOut(); return; }
-  location.href = ADMIN;
+  if (!ready) { say("The sign-in service didn't load. Check that supabase-config.js is uploaded, then reload."); return; }
+  say("Signing in…");
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({
+      email: document.getElementById("email").value.trim(),
+      password: document.getElementById("pw").value
+    });
+    if (error) { say("Sign-in failed: " + error.message); return; }
+    if (!(await isAdmin(data.user))) { say("Signed in, but this account isn't an admin."); await sb.auth.signOut(); return; }
+    location.href = ADMIN;
+  } catch (err) { say("Something went wrong: " + err.message); }
 });
 
 document.getElementById("guest").addEventListener("click", async () => {
-  msg.textContent = "";
-  const { error } = await sb.auth.signInAnonymously();
-  if (error) { msg.textContent = "Guest sign-in is off. Turn on Anonymous sign-ins in Supabase."; return; }
-  location.href = HOME;
+  if (!ready) { say("The sign-in service didn't load. Check that supabase-config.js is uploaded, then reload."); return; }
+  try {
+    const { error } = await sb.auth.signInAnonymously();
+    if (error) { say("Guest sign-in failed: " + error.message); return; }
+    location.href = HOME;
+  } catch (err) { say("Something went wrong: " + err.message); }
 });
+
+// Never redirect automatically. If a session already exists, say so and let the person choose.
+(async () => {
+  if (!ready) { say("The sign-in service didn't load. Check that supabase-config.js is uploaded, then reload."); return; }
+  try {
+    const { data } = await sb.auth.getSession();
+    const u = data.session && data.session.user;
+    if (!u) return;
+    const who = document.getElementById("who");
+    const adminNow = !u.is_anonymous && (await isAdmin(u));
+    who.querySelector("p").textContent = u.is_anonymous ? "You're browsing as a guest." : (adminNow ? "Signed in as admin: " : "Signed in as ") + (u.email || "");
+    who.querySelector(".go").onclick = () => { location.href = adminNow ? ADMIN : HOME; };
+    who.querySelector(".reset").onclick = async () => {
+      try { await sb.auth.signOut(); } catch (e) {}
+      Object.keys(localStorage).filter(k => k.startsWith("sb-")).forEach(k => localStorage.removeItem(k));
+      location.reload();
+    };
+    who.hidden = false;
+  } catch (err) {}
+})();
 </script>
 </body>
 </html>
