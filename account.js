@@ -1,7 +1,7 @@
-/* Turns the profile bar (#me) into an account menu.
+/* Turns the profile avatar (#me) into an account menu.
    - Desktop: the sidebar profile bar opens the menu.
-   - Phone: the same profile bar is shown pinned to the bottom of the screen
-     and opens the same menu (Edit profile / Admin tools / Sign out).
+   - Phone: the profile avatar sits at the right end of the top bar (always visible,
+     the nav scrolls underneath it) and opens the same menu downward.
    Needs supabase-js and supabase-config.js loaded before it. */
 (async function () {
   const btn = document.getElementById("me");
@@ -30,33 +30,43 @@
     .adm-drawer header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #2a2a2a;color:#ededed;font-weight:700}
     .adm-drawer header button{background:none;border:1px solid #2a2a2a;color:#ededed;border-radius:10px;padding:6px 12px;font:inherit;cursor:pointer}
     .adm-drawer iframe{flex:1;border:0;width:100%;background:#000}
-    /* Phone: profile bar pinned to the bottom, Admin tools lives in the menu only */
+    /* Phone: avatar pinned at the right end of the top bar; Admin tools lives in the menu only */
     @media (max-width:800px){
-      #me.me-mobile{display:flex !important;visibility:visible !important;opacity:1 !important;position:fixed !important;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:9990;margin:0;width:auto;max-width:none;background:#0c0c0c}
-      body.has-me-mobile{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+      #me.me-mobile{display:flex !important;visibility:visible !important;opacity:1 !important;position:fixed !important;right:0;left:auto !important;bottom:auto !important;z-index:9990;margin:0;width:auto !important;max-width:none;border:0;border-radius:0;padding:0 12px 0 26px;background:linear-gradient(90deg,rgba(5,3,4,0),rgba(5,3,4,.96) 38%)}
+      #me.me-mobile > div{display:none !important}
+      aside nav ul::after{content:"";flex:none;display:block;width:68px}
       .adm-fab{display:none}
     }
     @media (prefers-reduced-motion:reduce){.adm-drawer{transition:none}}
   `;
   document.head.appendChild(st);
 
-  /* On phones, move the profile bar out of the (hidden/collapsed) sidebar so it is always visible. */
+  /* On phones, lift the avatar out of the scrolling bar so it stays visible at the right end of it. */
   const home = document.createComment("me-home");
   btn.parentNode.insertBefore(home, btn);
   const mq = window.matchMedia("(max-width:800px)");
+  function pos() {
+    if (!mq.matches) { btn.style.top = ""; return; }
+    const ref = document.querySelector("aside nav a") || document.querySelector("aside");
+    if (!ref) return;
+    const r = ref.getBoundingClientRect();
+    btn.style.top = Math.max(0, r.top + r.height / 2 - btn.offsetHeight / 2) + "px";
+  }
   function place() {
     if (mq.matches) {
       if (btn.parentNode !== document.body) document.body.appendChild(btn);
       btn.classList.add("me-mobile");
-      document.body.classList.add("has-me-mobile");
     } else {
       btn.classList.remove("me-mobile");
-      document.body.classList.remove("has-me-mobile");
       if (home.parentNode && btn.parentNode !== home.parentNode) home.parentNode.insertBefore(btn, home.nextSibling);
     }
+    pos();
   }
   place();
   (mq.addEventListener ? mq.addEventListener("change", place) : mq.addListener(place));
+  addEventListener("resize", pos);
+  addEventListener("load", pos);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(pos);
 
   let pop = null, bypass = false, drawer = null, fab = null;
 
@@ -108,10 +118,17 @@
     document.body.appendChild(pop);
 
     const r = anchor.getBoundingClientRect();
-    pop.style.minWidth = Math.max(r.width, 200) + "px";
+    pop.style.minWidth = "200px";
     const pw = pop.offsetWidth;
-    pop.style.left = Math.max(8, Math.min(r.left, innerWidth - pw - 8)) + "px";
-    pop.style.bottom = (innerHeight - r.top + 8) + "px";   // opens upward from the profile bar
+    if (r.top < innerHeight / 2) {
+      // anchor is in the top bar: open downward, lined up with its right edge
+      pop.style.left = Math.max(8, Math.min(r.right - pw, innerWidth - pw - 8)) + "px";
+      pop.style.top = (r.bottom + 8) + "px";
+    } else {
+      // anchor is in the bottom-left sidebar: open upward
+      pop.style.left = Math.max(8, Math.min(r.left, innerWidth - pw - 8)) + "px";
+      pop.style.bottom = (innerHeight - r.top + 8) + "px";
+    }
     pop.querySelector("button").focus();
   }
 
