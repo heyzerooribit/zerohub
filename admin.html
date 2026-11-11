@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin | ZERØ</title>
+<style>
+  :root { --bg:#000; --card:#151515; --line:#2a2a2a; --text:#ededed; --muted:#9a9a9a; --red:#e11d2e; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:20px; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
+  .wrap { max-width:560px; margin:0 auto; }
+  header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+  h1 { margin:0; font-size:1.5rem; }
+  h2 { font-size:1.05rem; margin:0 0 12px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:20px; margin-bottom:16px; }
+  label { display:block; font-size:.9rem; margin:12px 0 6px; color:var(--muted); }
+  input, textarea { width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#0c0c0c; color:var(--text); font:inherit; }
+  textarea { min-height:100px; resize:vertical; }
+  input:focus, textarea:focus, button:focus-visible { outline:2px solid var(--red); outline-offset:1px; }
+  button { padding:11px 18px; border-radius:12px; border:0; font:inherit; font-weight:600; cursor:pointer; }
+  .primary { background:var(--red); color:#fff; margin-top:14px; }
+  .ghost { background:transparent; color:var(--text); border:1px solid var(--line); }
+  .item { border-top:1px solid var(--line); padding:14px 0; }
+  .item:first-of-type { border-top:0; }
+  .item h3 { margin:0 0 4px; font-size:1rem; }
+  .item p { margin:0 0 8px; white-space:pre-wrap; }
+  .item small { color:var(--muted); }
+  .del { padding:6px 12px; font-size:.85rem; margin-left:10px; background:transparent; color:#ff6b75; border:1px solid var(--line); }
+  #msg { color:#ff6b75; min-height:1.2em; margin-top:10px; font-size:.9rem; }
+</style>
+</head>
+<body hidden>
+<div class="wrap">
+  <header>
+    <h1>Admin</h1>
+    <button class="ghost" id="out">Sign out</button>
+  </header>
+  <section class="card">
+    <h2>Post an announcement</h2>
+    <form id="f">
+      <label for="t">Title</label>
+      <input id="t" required maxlength="120">
+      <label for="b">Message</label>
+      <textarea id="b" required></textarea>
+      <button class="primary" type="submit">Post announcement</button>
+      <div id="msg" role="alert"></div>
+    </form>
+  </section>
+  <section class="card">
+    <h2>Posted announcements</h2>
+    <div id="list"><small>Loading…</small></div>
+  </section>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
+<script>
+const list = document.getElementById("list");
+const msg = document.getElementById("msg");
+
+async function load() {
+  const { data, error } = await sb.from("announcements").select("*").order("created_at", { ascending:false });
+  list.textContent = "";
+  if (error) { list.textContent = "Couldn't load announcements."; return; }
+  if (!data.length) { list.innerHTML = "<small>Nothing posted yet. Write your first announcement above.</small>"; return; }
+  data.forEach(a => {
+    const d = document.createElement("div"); d.className = "item";
+    const h = document.createElement("h3"); h.textContent = a.title;
+    const p = document.createElement("p"); p.textContent = a.body;
+    const s = document.createElement("small"); s.textContent = new Date(a.created_at).toLocaleString();
+    const x = document.createElement("button"); x.className = "del"; x.textContent = "Delete";
+    x.onclick = async () => { if (confirm("Delete this announcement?")) { await sb.from("announcements").delete().eq("id", a.id); load(); } };
+    s.appendChild(x);
+    d.append(h, p, s); list.appendChild(d);
+  });
+}
+
+document.getElementById("f").addEventListener("submit", async (e) => {
+  e.preventDefault(); msg.textContent = "";
+  const { error } = await sb.from("announcements").insert({ title: t.value.trim(), body: b.value.trim() });
+  if (error) { msg.textContent = "Couldn't post. Make sure the SQL setup ran and you're the admin."; return; }
+  e.target.reset(); load();
+});
+
+document.getElementById("out").onclick = async () => { await sb.auth.signOut(); location.href = "login.html"; };
+
+(async () => {
+  const { data } = await sb.auth.getSession();
+  if (!data.session || !(await isAdmin(data.session.user))) { location.href = "login.html"; return; }
+  document.body.hidden = false; load();
+})();
+</script>
+</body>
+</html>

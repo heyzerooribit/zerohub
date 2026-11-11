@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in | ZERØ</title>
+<style>
+  :root { --bg:#000; --card:#151515; --line:#2a2a2a; --text:#ededed; --muted:#9a9a9a; --red:#e11d2e; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; display:grid; place-items:center; padding:20px; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
+  .card { width:100%; max-width:380px; background:var(--card); border:1px solid var(--line); border-radius:20px; padding:28px; }
+  h1 { margin:0 0 4px; font-size:1.7rem; letter-spacing:.02em; }
+  p { margin:0 0 20px; color:var(--muted); }
+  label { display:block; font-size:.9rem; margin:14px 0 6px; color:var(--muted); }
+  input { width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#0c0c0c; color:var(--text); font-size:1rem; }
+  input:focus, button:focus-visible { outline:2px solid var(--red); outline-offset:1px; }
+  button { width:100%; margin-top:18px; padding:13px; border-radius:12px; border:0; font-size:1rem; font-weight:600; cursor:pointer; }
+  .primary { background:var(--red); color:#fff; }
+  .ghost { background:transparent; color:var(--text); border:1px solid var(--line); margin-top:10px; }
+  .or { text-align:center; color:var(--muted); margin:18px 0 0; font-size:.85rem; }
+  #msg { min-height:1.3em; margin:14px 0 0; color:#ff6b75; font-size:.9rem; }
+</style>
+</head>
+<body>
+<main class="card">
+  <h1>ZERØ</h1>
+  <p>Sign in as admin, or keep browsing as a guest.</p>
+  <form id="f">
+    <label for="email">Admin email</label>
+    <input id="email" type="email" autocomplete="username" required>
+    <label for="pw">Password</label>
+    <input id="pw" type="password" autocomplete="current-password" required>
+    <button class="primary" type="submit">Sign in as admin</button>
+  </form>
+  <div class="or">or</div>
+  <button class="ghost" id="guest" type="button">Continue as guest</button>
+  <div id="msg" role="alert"></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
+<script>
+const msg = document.getElementById("msg");
+const HOME = "index.html";   // where guests land
+const ADMIN = "admin.html";  // where the admin lands
+
+async function route(user) {
+  location.href = (await isAdmin(user)) ? ADMIN : HOME;
+}
+
+sb.auth.getSession().then(({ data }) => { if (data.session) route(data.session.user); });
+
+document.getElementById("f").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  msg.textContent = "";
+  const { data, error } = await sb.auth.signInWithPassword({
+    email: document.getElementById("email").value.trim(),
+    password: document.getElementById("pw").value
+  });
+  if (error) { msg.textContent = "Sign-in failed: check your email and password."; return; }
+  if (!(await isAdmin(data.user))) { msg.textContent = "This account isn't an admin."; await sb.auth.signOut(); return; }
+  location.href = ADMIN;
+});
+
+document.getElementById("guest").addEventListener("click", async () => {
+  msg.textContent = "";
+  const { error } = await sb.auth.signInAnonymously();
+  if (error) { msg.textContent = "Guest sign-in is off. Turn on Anonymous sign-ins in Supabase."; return; }
+  location.href = HOME;
+});
+</script>
+</body>
+</html>
