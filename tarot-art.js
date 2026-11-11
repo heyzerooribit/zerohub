@@ -31,7 +31,7 @@
   const SYM = {
     wands: '<path d="M0 10V-10M0 -1l-5-4M0 -6l5-4"/>',
     cups: '<path d="M-8 -8h16c0 10-3 12-8 12s-8-2-8-12zM0 4v6M-5 10h10"/>',
-    swords: '<path d="M0 -10V4M-5 4h10M0 4v6"/>',
+    swords: '<path d="M0 -13V5M-2.5 -10L0 -14l2.5 4M-6 5h12M0 5v6"/>',
     pentacles: '<circle r="9"/><polygon points="0,-6 1.8,-1.8 6,-1.8 2.6,0.8 4,5 0,2.5 -4,5 -2.6,0.8 -6,-1.8 -1.8,-1.8"/>'
   };
   const RANKS = ["ace","two","three","four","five","six","seven","eight","nine","ten","page","knight","queen","king"];
@@ -54,7 +54,7 @@
     RANKS.forEach((rank, r) => {
       let art;
       if (r < 10) {
-        const sc = r === 0 ? 3.2 : r < 6 ? 1.3 : 1;
+        const sc = r === 0 ? 3.4 : r < 6 ? 1.5 : 1.1;
         art = PIPS[r].map(([x, y]) => `<g transform="translate(${x} ${y}) scale(${sc})">${SYM[suit]}</g>`).join("");
       } else {
         art = crown(r - 9) + `<g transform="translate(50 68) scale(2.2)">${SYM[suit]}</g>`;
@@ -73,7 +73,7 @@
   }
 
   const style = document.createElement("style");
-  style.textContent = ".tart{position:absolute;inset:8% 12% 30%;display:flex;align-items:center;justify-content:center;pointer-events:none;color:var(--red,#e11d2e)}.tart svg{width:100%;height:100%}";
+  style.textContent = ".tart{position:absolute;inset:7% 10% 40%;display:flex;align-items:center;justify-content:center;pointer-events:none;color:var(--red,#e11d2e)}.tart svg{width:100%;height:100%}#tfront{display:flex!important;flex-direction:column!important;justify-content:flex-end!important;align-items:center!important;padding-bottom:9%!important}";
   document.head.appendChild(style);
 
   const nameEl = document.getElementById("tname");
