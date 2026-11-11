@@ -153,7 +153,7 @@
     $("me-name").textContent=(p.name||"").trim()||"ZERØ";
     $("me-sub").textContent=(p.status||"").trim()||"Edit profile";
   }
-  var saved=load();paintSide(saved);
+ var saved=load();paintSide(saved);document.addEventListener("zero:profile-updated",function(){paintSide(load())});
 
   var ov=document.createElement("div");ov.id="povl";ov.hidden=true;var dlg=document.createElement("div");dlg.className="pdlg";dlg.setAttribute("role","dialog");dlg.setAttribute("aria-modal","true");dlg.setAttribute("aria-labelledby","ptitle");function shut(){ov.hidden=true;btn.focus()}
   dlg.innerHTML='<form id="pform"><h2 id="ptitle">Edit profile</h2>'+
@@ -161,7 +161,7 @@
    '<label class="f">Display name<input type="text" id="pname" maxlength="24" autocomplete="off"></label>'+
    '<label class="f">Status<input type="text" id="pstat" maxlength="60" autocomplete="off" placeholder="What are you becoming?"></label>'+
    '<fieldset><legend>Avatar color</legend><div class="sw" id="psw"></div></fieldset>'+
-   '<p class="muted" style="margin:1rem 0 0">Saved in this browser only.</p>'+
+   '<p class="muted" id="psync" style="margin:1rem 0 0">Saved in this browser only.</p>'+
    '<div class="btns"><button type="submit" class="btn main">Save</button><button type="button" class="btn ghost" id="pcancel">Cancel</button><button type="button" class="btn ghost" id="preset">Reset</button></div></form>';
   ov.appendChild(dlg);document.body.appendChild(ov);
   var draft;
@@ -195,7 +195,7 @@
   $("pform").onsubmit=function(e){
     e.preventDefault();
     if(!(draft.name||"").trim())draft.name="ZERØ";
-    store(draft);paintSide(load());shut();
+    store(draft);paintSide(load());document.dispatchEvent(new CustomEvent("zero:profile-saved",{detail:load()}));shut();
   };
   ov.addEventListener("click",function(e){if(e.target===ov)shut()});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!ov.hidden)shut()});
 })();
