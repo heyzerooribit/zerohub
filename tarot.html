@@ -2,52 +2,133 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#000000">
-<meta name="description" content="ZERØ isn’t about erasing yourself. It’s about allowing yourself to evolve.">
-<title>Daily card · ZERØ</title>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=DM+Sans:wght@400;500;700&family=Libre+Baskerville:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="zero.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tarot | ZERØ</title>
+<style>
+  :root { --bg:#000; --card:#151515; --line:#2a2a2a; --text:#ededed; --muted:#9a9a9a; --red:#e11d2e; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:24px 16px 48px; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; text-align:center; }
+  h1 { margin:0 0 6px; font-size:1.6rem; }
+  .sub { margin:0 0 22px; color:var(--muted); }
+  .btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:28px; }
+  button { padding:12px 20px; border-radius:12px; border:1px solid var(--line); background:var(--card); color:var(--text); font:inherit; font-weight:600; cursor:pointer; }
+  button.main { background:var(--red); border-color:var(--red); color:#fff; }
+  button:focus-visible, .card:focus-visible { outline:2px solid var(--red); outline-offset:2px; }
+  #spread { display:flex; gap:18px; justify-content:center; flex-wrap:wrap; }
+  .slot { width:min(170px,42vw); }
+  .slot p { margin:0 0 8px; color:var(--muted); font-size:.9rem; }
+  .card { position:relative; width:100%; aspect-ratio:2/3.3; perspective:900px; cursor:pointer; border-radius:16px; }
+  .inner { position:absolute; inset:0; transition:transform .6s; transform-style:preserve-3d; }
+  .card.flipped .inner { transform:rotateY(180deg); }
+  .face { position:absolute; inset:0; border-radius:16px; border:1px solid var(--line); background:var(--card); backface-visibility:hidden; -webkit-backface-visibility:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:12px; }
+  .back { font-size:3.4rem; color:var(--red); border-color:var(--red); }
+  .front { transform:rotateY(180deg); justify-content:space-between; }
+  .front svg { width:72%; color:var(--red); }
+  .num { color:var(--muted); font-size:.85rem; }
+  .name { font-weight:700; font-size:1rem; }
+  .meaning { color:var(--muted); font-size:.78rem; line-height:1.3; }
+  @media (prefers-reduced-motion: reduce) { .inner { transition:none; } }
+</style>
 </head>
 <body>
-<canvas id="stars" aria-hidden="true"></canvas>
-<aside>
-  <a class="brand" href="index.html"><b class="wm">Ø ZERØ</b></a>
-  <nav aria-label="Main"><ul><li><a href="index.html"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>Home</a></li><li><a href="about.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>About</a></li><li><a href="community.html"><svg viewBox="0 0 24 24"><path d="M16 11a4 4 0 10-8 0M4 21a8 8 0 0116 0"/></svg>Community</a></li><li><a href="merch.html"><svg viewBox="0 0 24 24"><path d="M6 8h12l1 12H5zM9 8a3 3 0 016 0"/></svg>Merch</a></li><li><a href="schedule.html"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Schedule</a></li><li><a href="inbox.html"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>Inbox</a></li><li><a href="tarot.html" aria-current="page"><svg viewBox="0 0 24 24"><path d="M12 3l2.4 5 5.6.8-4 3.9.9 5.6L12 15.6 7.1 18.3l.9-5.6-4-3.9 5.6-.8z"/></svg>Daily card</a></li></ul></nav>
-  <button class="me" id="me" type="button" aria-haspopup="dialog" aria-label="Edit profile"><i id="me-av">Ø</i><div><b id="me-name">ZERØ</b><small id="me-sub">Edit profile</small></div></button>
-</aside>
-<main>
-  <div class="top"><span class="pill">From darkness, rebirth</span></div>
-  <div class="card tarot">
-    <h2>Daily card</h2>
-    <p class="intro">Draw one card from the full 78-card deck. You get one a day, so take a breath before you choose.</p>
-    <div class="tstage">
-      <div class="tcard" id="tcard"><div class="tin">
-        <div class="tface back" aria-hidden="true"><i class="tring"></i></div>
-        <div class="tface front" id="tfront"></div>
-      </div></div>
-      <div>
-        <button class="btn main" id="tdraw" type="button">Draw today’s card</button>
-        <div class="tinfo" id="tinfo" aria-live="polite" hidden>
-          <h3 id="tname"></h3>
-          <p class="tkw" id="tkw"></p>
-          <p class="remind" id="tmean"></p>
-          <details><summary>The other way up</summary><p id="tother" class="muted"></p></details>
-          <p class="muted">Come back tomorrow for a new card.</p>
-        </div>
-      </div>
-    </div>
-    <div id="thist"></div>
-  </div>
-  <footer>ZERØ. A beginning, not an absence.</footer>
-</main>
-<script src="zero.js"></script>
-<script src="tarot.js"></script>
+<h1>Tarot</h1>
+<p class="sub">All 78 cards. Pick a spread, then tap each card to turn it over.</p>
+<div class="btns">
+  <button class="main" id="one">Draw one card</button>
+  <button id="three">Draw three cards</button>
+</div>
+<div id="spread"></div>
+<script>
+const G = (s) => `<svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${s}</svg>`;
+const DECK = [
+ ["The Fool","New beginnings and a leap of faith.",G('<path d="M10 80h35l8-6"/><circle cx="72" cy="26" r="10"/><circle cx="40" cy="40" r="6"/><path d="M40 46v18l-8 10M40 56l12-6"/>')],
+ ["The Magician","Skill, focus, and making things happen.",G('<path d="M50 30c-10-12-30-12-30 0s20 12 30 0 30-12 30 0-20 12-30 0z"/><path d="M50 48v40M40 88h20"/>')],
+ ["The High Priestess","Intuition and hidden knowledge.",G('<path d="M22 20v60M78 20v60"/><path d="M58 32a20 20 0 1 0 0 36a15 15 0 1 1 0-36z"/>')],
+ ["The Empress","Growth, comfort, and creativity.",G('<circle cx="50" cy="36" r="18"/><path d="M50 54v32M38 70h24"/>')],
+ ["The Emperor","Structure, authority, and stability.",G('<path d="M24 84V40h52v44z"/><path d="M24 40l10-16 16 12 16-12 10 16"/>')],
+ ["The Hierophant","Tradition and learning from others.",G('<path d="M50 14v74M34 28h32M28 46h44M34 64h32"/>')],
+ ["The Lovers","Connection and an important choice.",G('<circle cx="38" cy="50" r="22"/><circle cx="62" cy="50" r="22"/>')],
+ ["The Chariot","Drive, willpower, and forward motion.",G('<circle cx="30" cy="72" r="13"/><circle cx="70" cy="72" r="13"/><path d="M20 58V34h60v24M50 34V18"/>')],
+ ["Strength","Quiet courage and patience.",G('<path d="M50 26c-8-10-26-10-26 0s18 10 26 0 26-10 26 0-18 10-26 0z"/><circle cx="50" cy="66" r="18"/><path d="M42 62h.1M58 62h.1M42 74c5 4 11 4 16 0"/>')],
+ ["The Hermit","Looking inward and finding your own light.",G('<path d="M70 14v56M26 40h32v30H26zM42 28v12"/><circle cx="42" cy="55" r="6"/>')],
+ ["Wheel of Fortune","Cycles, change, and turning points.",G('<circle cx="50" cy="50" r="34"/><circle cx="50" cy="50" r="8"/><path d="M50 16v68M16 50h68M26 26l48 48M74 26L26 74"/>')],
+ ["Justice","Fairness, truth, and cause and effect.",G('<path d="M50 14v72M30 86h40M24 30h52"/><path d="M24 30l-12 26h24zM76 30l-12 26h24z"/>')],
+ ["The Hanged Man","Pausing and seeing things differently.",G('<path d="M20 14h60M50 14v56"/><circle cx="50" cy="78" r="9"/><path d="M36 54l14 6 14-6"/>')],
+ ["Death","An ending that clears space for something new.",G('<path d="M32 90L64 22"/><path d="M64 22c-18-6-34 2-42 18 18-4 30-6 42-18z"/>')],
+ ["Temperance","Balance, patience, and blending.",G('<path d="M20 20h24l-4 22H24zM56 58h24l-4 22H60z"/><path d="M40 42c14 0 6 16 20 16"/>')],
+ ["The Devil","Habits, attachments, and what holds you.",G('<circle cx="50" cy="50" r="34"/><path d="M50 82L24 38h52z"/>')],
+ ["The Tower","Sudden change that breaks open what was false.",G('<path d="M34 90V40h32v50zM30 40l20-20 20 20"/><path d="M82 8L70 30h12L68 54"/>')],
+ ["The Star","Hope, healing, and renewal.",G('<polygon points="50,12 60,40 88,40 66,58 74,86 50,70 26,86 34,58 12,40 40,40"/>')],
+ ["The Moon","Illusion, dreams, and uncertainty.",G('<path d="M62 20a30 30 0 1 0 0 60a24 24 0 1 1 0-60z"/><path d="M80 70v14M70 74v10"/>')],
+ ["The Sun","Joy, clarity, and success.",G('<circle cx="50" cy="50" r="16"/><path d="M50 12v14M50 74v14M12 50h14M74 50h14M23 23l10 10M67 67l10 10M77 23L67 33M33 67L23 77"/>')],
+ ["Judgement","A reckoning and a fresh start.",G('<path d="M18 62L66 30l8 14L26 76z"/><path d="M80 24l8-8M84 40h10M72 14V4"/>')],
+ ["The World","Completion and wholeness.",G('<ellipse cx="50" cy="50" rx="28" ry="38"/><circle cx="50" cy="50" r="8"/>')]
+];
+
+
+const SUITS = {
+ Wands:["wands",'<path d="M0 10V-10M0 -1l-5-4M0 -6l5-4"/>',["A spark of inspiration.","Planning and choosing a direction.","Expansion and looking ahead.","Celebration and a stable home.","Friendly competition and clashing ideas.","Victory and recognition.","Standing your ground.","Fast movement and news.","Resilience near the finish.","Heavy responsibility.","Curious new energy.","Bold, restless action.","Warm confidence.","Visionary leadership."]],
+ Cups:["cups",'<path d="M-8 -8h16c0 10-3 12-8 12s-8-2-8-12zM0 4v6M-5 10h10"/>',["New feelings and an open heart.","Mutual connection.","Friendship and celebration.","Apathy and missed offers.","Grief with something still left.","Nostalgia and kindness.","Many options and daydreams.","Walking away to find more.","Satisfaction and a wish fulfilled.","Lasting emotional fulfillment.","A tender message or idea.","Romance and following your heart.","Compassion and intuition.","Emotional balance and calm."]],
+ Swords:["swords",'<path d="M0 -10V4M-5 4h10M0 4v6"/>',["A clear truth cuts through.","A stalemate and a hard choice.","Heartbreak and honest pain.","Rest and recovery.","Hollow wins and conflict.","Moving toward calmer waters.","Sneaky tactics or going it alone.","Feeling trapped by your thoughts.","Anxiety and sleepless worry.","A painful ending, then relief.","A curious mind and sharp questions.","Charging ahead with ideas.","Clear, direct honesty.","Reason and fair judgment."]],
+ Pentacles:["pentacles",'<circle r="9"/><polygon points="0,-6 1.8,-1.8 6,-1.8 2.6,0.8 4,5 0,2.5 -4,5 -2.6,0.8 -6,-1.8 -1.8,-1.8"/>',["A new chance at stability.","Juggling priorities.","Teamwork and skill.","Holding tight to security.","Hardship and getting help.","Giving, receiving, and sharing.","Patience while things grow.","Careful practice and craft.","Self-made comfort.","Legacy and lasting security.","A practical new goal.","Steady, reliable effort.","Nurturing and resourceful.","Abundance and dependable leadership."]]
+};
+const RANKS = ["Ace","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Page","Knight","Queen","King"];
+const PIPS = [
+ [[50,50]],[[50,28],[50,72]],[[50,22],[50,50],[50,78]],
+ [[32,30],[68,30],[32,70],[68,70]],[[32,30],[68,30],[32,70],[68,70],[50,50]],
+ [[32,24],[68,24],[32,50],[68,50],[32,76],[68,76]],
+ [[32,24],[68,24],[32,50],[68,50],[32,76],[68,76],[50,37]],
+ [[32,24],[68,24],[32,50],[68,50],[32,76],[68,76],[50,37],[50,63]],
+ [[32,20],[68,20],[32,40],[68,40],[32,60],[68,60],[32,80],[68,80],[50,50]],
+ [[32,20],[68,20],[32,40],[68,40],[32,60],[68,60],[32,80],[68,80],[50,30],[50,70]]
+];
+function crown(n) {
+  const w = 52 / n; let d = "M24 38";
+  for (let k = 0; k < n; k++) d += ` L${24 + (k + .5) * w} 14 L${24 + (k + 1) * w} 38`;
+  return `<path d="${d}Z"/>`;
+}
+for (const [suit, [, sym, text]] of Object.entries(SUITS)) {
+  RANKS.forEach((rank, r) => {
+    let art;
+    if (r < 10) {
+      const sc = r === 0 ? 3.2 : r < 6 ? 1.3 : 1;
+      art = PIPS[r].map(([x, y]) => `<g transform="translate(${x} ${y}) scale(${sc})">${sym}</g>`).join("");
+    } else {
+      art = crown(r - 9) + `<g transform="translate(50 68) scale(2.2)">${sym}</g>`;
+    }
+    DECK.push([`${rank} of ${suit}`, text[r], G(art), suit]);
+  });
+}
+
+const spread = document.getElementById("spread");
+
+function pick(n) {
+  const a = DECK.map((c, i) => [c, i]);
+  const r = new Uint32Array(a.length); crypto.getRandomValues(r);
+  return a.map((x, i) => [r[i], x]).sort((p, q) => p[0] - q[0]).slice(0, n).map(p => p[1]);
+}
+
+function draw(n, labels) {
+  spread.textContent = "";
+  pick(n).forEach(([c, i], k) => {
+    const slot = document.createElement("div"); slot.className = "slot";
+    if (labels) { const l = document.createElement("p"); l.textContent = labels[k]; slot.appendChild(l); }
+    const card = document.createElement("div");
+    card.className = "card"; card.tabIndex = 0; card.setAttribute("role", "button");
+    card.setAttribute("aria-label", "Turn card over");
+    card.innerHTML = `<div class="inner"><div class="face back">Ø</div><div class="face front"><span class="num">${c[3] ?? i}</span>${c[2]}<div><div class="name"></div><div class="meaning"></div></div></div></div>`;
+    card.querySelector(".name").textContent = c[0];
+    card.querySelector(".meaning").textContent = c[1];
+    const flip = () => card.classList.toggle("flipped");
+    card.addEventListener("click", flip);
+    card.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); } });
+    slot.appendChild(card); spread.appendChild(slot);
+  });
+}
+
+document.getElementById("one").onclick = () => draw(1);
+document.getElementById("three").onclick = () => draw(3, ["Past", "Present", "Future"]);
+draw(1);
+</script>
 </body>
 </html>
