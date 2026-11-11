@@ -47,7 +47,11 @@ async function route(user) {
   location.href = (await isAdmin(user)) ? ADMIN : HOME;
 }
 
-sb.auth.getSession().then(({ data }) => { if (data.session) route(data.session.user); });
+// Skip the form only for a signed-in admin. A guest session must still be able to sign in.
+sb.auth.getSession().then(async ({ data }) => {
+  const u = data.session && data.session.user;
+  if (u && !u.is_anonymous && (await isAdmin(u))) location.href = ADMIN;
+});
 
 document.getElementById("f").addEventListener("submit", async (e) => {
   e.preventDefault();
