@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in | ZERØ</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  :root { --bg:#000; --card:#151515; --line:#2a2a2a; --text:#ededed; --muted:#9a9a9a; --red:#e11d2e; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; display:grid; place-items:center; padding:20px; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
+  .card { width:100%; max-width:380px; background:var(--card); border:1px solid var(--line); border-radius:20px; padding:28px; }
+  h1 { margin:0 0 4px; font-size:1.7rem; letter-spacing:.02em; }
+  p { margin:0 0 20px; color:var(--muted); }
+  label { display:block; font-size:.9rem; margin:14px 0 6px; color:var(--muted); }
+  input { width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:#0c0c0c; color:var(--text); font-size:1rem; }
+  input:focus, button:focus-visible { outline:2px solid var(--red); outline-offset:1px; }
+  button { width:100%; margin-top:18px; padding:13px; border-radius:12px; border:0; font-size:1rem; font-weight:600; cursor:pointer; }
+  .primary { background:var(--red); color:#fff; }
+  .ghost { background:transparent; color:var(--text); border:1px solid var(--line); margin-top:10px; }
+  .or { text-align:center; color:var(--muted); margin:18px 0 0; font-size:.85rem; }
+  .who { margin:0 0 6px; padding:12px; border:1px solid var(--line); border-radius:14px; }
+  .who p { margin:0 0 4px; font-size:.9rem; color:var(--muted); word-break:break-all; }
+  #msg { min-height:1.3em; margin:14px 0 0; color:#ff6b75; font-size:.9rem; }
+</style>
+</head>
+<body>
+<main class="card">
+  <h1>ZERØ</h1>
+  <p>Sign in with Google, or sign in as admin.</p>
+  <div id="who" class="who" hidden><p></p><button class="ghost go" type="button">Go to the site</button><button class="ghost reset" type="button">Sign out and start over</button></div>
+  <button class="ghost" id="google" type="button" style="margin-top:0">Continue with Google</button>
+  <div class="or">or</div>
+  <form id="f">
+    <label for="email">Admin email</label>
+    <input id="email" type="email" autocomplete="username" required>
+    <label for="pw">Password</label>
+    <input id="pw" type="password" autocomplete="current-password" required>
+    <button class="primary" type="submit">Sign in as admin</button>
+  </form>
+  <div id="msg" role="alert"></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="supabase-config.js"></script>
+<script>
+const msg = document.getElementById("msg");
+const HOME = "index.html";   // where Google users land
+const ADMIN = "index.html";  // admin lands on the full site (admin tools open from the site)
+const say = (t) => { msg.textContent = t; };
+const ready = typeof sb !== "undefined" && typeof isAdmin === "function";
+
+// Listeners are attached first, so the page never reloads itself if something else fails to load.
+document.getElementById("f").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!ready) { say("The sign-in service didn't load. Check that supabase-config.js is uploaded, then reload."); return; }
+  say("Signing in…");
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({
+      email: document.getElementById("email").value.trim(),
+      password: document.getElementById("pw").value
+    });
+    if (error) { say("Sign-in failed: " + error.message); return; }
+    if (!(await isAdmin(data.user))) { say("Signed in, but this account isn't an admin."); await sb.auth.signOut(); return; }
+    location.href = ADMIN;
+  } catch (err) { say("Something went wrong: " + err.message); }
+});
+
+document.getElementById("google").addEventListener("click", async () => {
+  if (!ready) { say("The sign-in service didn't load. Check that supabase-config.js is uploaded, then reload."); return; }
+  say("Opening Google…");
+  try {
+    const { error } = await sb.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: new URL(HOME, location.href).href }
+    });
+    if (error) { say("Google sign-in failed: " + error.message); }
+  } catch (err) { say("Something went wrong: " + err.message); }
+});
+
+// Never redirect automatically. If a session already exists, say so and let the person choose.
+(async () => {
+  if (!ready) { say("The sign-in service didn't load. Check that supabase-config.js is uploaded, then reload."); return; }
+  try {
+    const { data } = await sb.auth.getSession();
+    const u = data.session && data.session.user;
+    if (!u) return;
+    const who = document.getElementById("who");
+    const adminNow = !u.is_anonymous && (await isAdmin(u));
+    who.querySelector("p").textContent = u.is_anonymous ? "You're browsing as a guest." : (adminNow ? "Signed in as admin: " : "Signed in as ") + (u.email || "");
+    who.querySelector(".go").onclick = () => { location.href = adminNow ? ADMIN : HOME; };
+    who.querySelector(".reset").onclick = async () => {
+      try { await sb.auth.signOut(); } catch (e) {}
+      Object.keys(localStorage).filter(k => k.startsWith("sb-")).forEach(k => localStorage.removeItem(k));
+      location.reload();
+    };
+    who.hidden = false;
+  } catch (err) {}
+})();
+</script>
+</body>
+</html>
